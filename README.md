@@ -8,6 +8,14 @@ A Python to [Vega-expression](https://vega.github.io/vega/docs/expressions/) tra
 
 ## Installation
 
+### From PyPi
+
+```bash
+pip install py2vega
+```
+
+### From sources
+
 You can install from sources using `pip`:
 
 ```bash
