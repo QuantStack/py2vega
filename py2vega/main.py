@@ -4,8 +4,8 @@ import ast
 import inspect
 import types
 
-from .math import math_functions
 from .constants import constants
+from .vega_functions import vega_functions
 
 
 def return_stmt(stmt, whitelist, scope):
@@ -173,7 +173,7 @@ def call_expr(expr, whitelist, scope):
     if isinstance(expr.func, ast.Attribute):
         func_name = expr.func.attr
 
-    if func_name in math_functions:
+    if func_name in vega_functions:
         return '{}({})'.format(
             func_name,
             ', '.join([pystmt2vega(arg, whitelist, scope) for arg in expr.args])

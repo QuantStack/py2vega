@@ -1,6 +1,7 @@
 import pytest
 
-from py2vega import py2vega, math
+from py2vega import py2vega
+from py2vega.functions.math import isNaN
 
 whitelist = ['value', 'x', 'y', 'height', 'width', 'row', 'column']
 
@@ -109,7 +110,7 @@ def test_whitelist():
 
 
 def bar():
-    return math.isNaN(3)
+    return isNaN(3)
 
 
 def test_math():
