@@ -1,6 +1,6 @@
 # py2vega
 
-A Python to Vega-expression transpiler.
+A Python to [Vega-expression](https://vega.github.io/vega/docs/expressions/) transpiler.
 
 ## Installation
 
@@ -15,7 +15,7 @@ pip install .
 
 ## Usage
 
-`py2vega` provides a `py2vega` function that turns a Python string code or a Python function into a valid [vega-expression](https://vega.github.io/vega/docs/expressions/). Because it is turning the Python code into a Vega-expression, only a subset of Python is supported: the `if` and `return` statements, the ternary operator, the `in` operator and types like `str`, `bool`, `dict`, `tuple`...
+`py2vega` provides a `py2vega` function that turns a Python string code or a Python function into a valid [Vega-expression](https://vega.github.io/vega/docs/expressions/). Because it is turning the Python code into a Vega-expression, only a subset of Python is supported: the `if` and `return` statements, the ternary operator, the `in` operator and types like `str`, `bool`, `dict`, `tuple`...
 
 ```Python
 from py2vega import py2vega
