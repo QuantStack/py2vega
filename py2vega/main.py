@@ -32,7 +32,7 @@ def if_stmt(stmt, whitelist):
 def nameconstant_expr(expr, _):
     """Turn a Python nameconstant expression into a vega-expression."""
     if expr.value is False:
-            return 'false'
+        return 'false'
     if expr.value is True:
         return 'true'
     if expr.value is None:
