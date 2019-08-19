@@ -14,6 +14,12 @@ A Python to [Vega-expression](https://vega.github.io/vega/docs/expressions/) tra
 pip install py2vega
 ```
 
+### From conda-forge
+
+```bash
+conda install -c conda-forge py2vega
+```
+
 ### From sources
 
 You can install from sources using `pip`:
