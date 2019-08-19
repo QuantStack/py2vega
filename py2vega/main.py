@@ -69,6 +69,10 @@ def unaryop_expr(expr, whitelist):
     """Turn a Python unaryop expression into a vega-expression."""
     if isinstance(expr.op, ast.Not):
         return '!({})'.format(pystmt2vega(expr.operand, whitelist))
+    if isinstance(expr.op, ast.USub):
+        return '-{}'.format(pystmt2vega(expr.operand, whitelist))
+    if isinstance(expr.op, ast.UAdd):
+        return '+{}'.format(pystmt2vega(expr.operand, whitelist))
 
     raise RuntimeError('Unsupported {} operator, only a subset of Python is supported'.format(str(expr.op)))
 

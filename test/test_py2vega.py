@@ -51,6 +51,12 @@ def test_unary():
     code = 'not value'
     assert py2vega(code, whitelist) == '!(value)'
 
+    code = '-value'
+    assert py2vega(code, whitelist) == '-value'
+
+    code = '+value'
+    assert py2vega(code, whitelist) == '+value'
+
 
 def test_binary():
     code = 'value or 3'
