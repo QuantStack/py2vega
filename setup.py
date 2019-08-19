@@ -4,8 +4,6 @@ from setuptools import setup, find_packages
 
 __AUTHOR__ = 'QuantStack dev team'
 
-readme = open('README.md').read()
-
 setup(
     name='py2vega',
     version='0.1.0',
@@ -15,7 +13,6 @@ setup(
     url='https://github.com/QuantStack/py2vega',
     license='BSD 3-Clause',
     keywords='python vega vega-expression',
-    long_description=readme,
     packages=find_packages(exclude=['test']),
     python_requires='>=3.5',
     install_requires=[],
