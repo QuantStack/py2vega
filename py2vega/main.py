@@ -65,6 +65,20 @@ def dict_expr(expr, whitelist, scope):
     )
 
 
+def assign_expr(expr, whitelist, scope):
+    """Turn a Python assignment expression into a vega-expression. And save the assigned variable in the current scope."""
+    value = pystmt2vega(expr.value, whitelist, scope)
+
+    for target in expr.targets:
+        if not isinstance(target, ast.Name):
+            raise RuntimeError('Unsupported target {} for the assignment'.format(str(target)))
+
+        scope[target.id] = value
+
+    # Assignment in Python returns None
+    return 'null'
+
+
 def unaryop_expr(expr, whitelist, scope):
     """Turn a Python unaryop expression into a vega-expression."""
     if isinstance(expr.op, ast.Not):
@@ -141,8 +155,13 @@ def compare_expr(expr, whitelist, scope):
 
 def name_expr(expr, whitelist, scope):
     """Turn a Python name expression into a vega-expression."""
+    # If it's in the scope, return it's evaluated expression
+    if expr.id in scope:
+        return scope[expr.id]
+
     if expr.id in constants or expr.id in whitelist:
         return expr.id
+
     raise NameError('name \'{}\' is not defined, only a subset of Python is supported'.format(expr.id))
 
 
@@ -177,6 +196,7 @@ stmt_mapping = {
     ast.Tuple: list_expr,
     ast.List: list_expr,
     ast.Dict: dict_expr,
+    ast.Assign: assign_expr,
     ast.UnaryOp: unaryop_expr,
     ast.BoolOp: boolop_expr,
     ast.BinOp: binop_expr,

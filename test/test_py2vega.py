@@ -120,31 +120,12 @@ def invalid_func1():
     print(3)
 
 
-def invalid_func2():
-    f = 3
-
-
-def invalid_func3(value):
-    value < 3
-    return 3 < value <= 4
-
-
 def test_invalid1():
     with pytest.raises(RuntimeError):
         py2vega(invalid_func1)
 
 
 def test_invalid2():
-    with pytest.raises(RuntimeError):
-        assert py2vega(invalid_func2)
-
-
-def test_invalid3():
-    with pytest.raises(RuntimeError):
-        py2vega(invalid_func3)
-
-
-def test_invalid4():
     with pytest.raises(RuntimeError):
         py2vega(lambda value: value)
 
@@ -160,3 +141,68 @@ def conditional_func(value):
 
 def test_if_stmt():
     assert py2vega(conditional_func, whitelist) == "if(value < 3, 'red', if(value < 5, 'green', 'yellow'))"
+
+
+def assign_func1(value):
+    val = ('USA', 'Japan')
+
+    return 'red' if value in val else 'green'
+
+
+def assign_func2(value):
+    a = 'green'
+    b = 'red'
+
+    return a if value < 3 else b
+
+
+def assign_func3(value):
+    a = 'green'
+    a = 'red'
+
+    return a
+
+
+def assign_func4(value):
+    a = 'green'
+    b = a
+
+    return b
+
+
+def assign_func5(value):
+    a = b = 'Hello'
+
+    return (a, b)
+
+
+def assign_func6(value):
+    a = 'Hello'
+    b = a
+    a = 'World'
+
+    return b
+
+
+def test_assign1():
+    assert py2vega(assign_func1, whitelist) == "indexof(['USA', 'Japan'], value) != -1 ? 'red' : 'green'"
+
+
+def test_assign2():
+    assert py2vega(assign_func2, whitelist) == "value < 3 ? 'green' : 'red'"
+
+
+def test_assign3():
+    assert py2vega(assign_func3, whitelist) == "'red'"
+
+
+def test_assign4():
+    assert py2vega(assign_func4, whitelist) == "'green'"
+
+
+def test_assign5():
+    assert py2vega(assign_func5, whitelist) == "['Hello', 'Hello']"
+
+
+def test_assign6():
+    assert py2vega(assign_func6, whitelist) == "'Hello'"

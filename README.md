@@ -56,3 +56,17 @@ def foo(value):
 
 foo_expr = py2vega(foo, whitelist=['value'])  # "if(isNaN(value), 'It is NaN...', value)"
 ```
+
+Even if assignments are prohibited in Vega-expressions, you can assign variables in your Python function, it will be turned into a valid Vega-expression anyway:
+
+```Python
+from py2vega import py2vega
+
+def foo(value):
+    a = 'green'
+    b = 'red'
+
+    return a if value < 3 else b
+
+foo_expr = py2vega(foo, whitelist=['value'])  # "value < 3 ? 'green' : 'red'"
+```
