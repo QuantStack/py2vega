@@ -1,5 +1,9 @@
 # py2vega
 
+
+[![Travis](https://travis-ci.org/QuantStack/py2vega.svg?branch=master)](https://travis-ci.org/QuantStack/py2vega)
+[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/QuantStack/Lobby)
+
 A Python to [Vega-expression](https://vega.github.io/vega/docs/expressions/) transpiler.
 
 ## Installation
