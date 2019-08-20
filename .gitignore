@@ -1,6 +1,7 @@
 py2vega.egg-info/*
 test/__pycache__/*
 py2vega/__pycache__/*
+py2vega/functions/__pycache__/*
 .pytest_cache/*
 build/*
 dist/*

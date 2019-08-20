@@ -49,18 +49,20 @@ def foo(value):
 foo_expr = py2vega(foo, whitelist=['value'])  # "if(value < 3, 'red', if(value < 5, 'green', 'yellow'))"
 ```
 
-`py2vega` also provides mathematical functions and constants as it is available for vega-expressions:
+`py2vega` also provides functions and constants the same way they are available for vega-expressions:
 
 ```Python
-from py2vega import py2vega, isNaN
+from py2vega import py2vega
+from py2vega.functions.math import isNaN
+from py2vega.functions.string import lower
 
 def foo(value):
     if isNaN(value):
-        return 'It is NaN...'
+        return lower('It is NaN...')
     else:
         return value
 
-foo_expr = py2vega(foo, whitelist=['value'])  # "if(isNaN(value), 'It is NaN...', value)"
+foo_expr = py2vega(foo, whitelist=['value'])  # "if(isNaN(value), lower('It is NaN...'), value)"
 ```
 
 Even if assignments are prohibited in Vega-expressions, you can assign variables in your Python function, it will be turned into a valid Vega-expression anyway:

@@ -3,7 +3,7 @@
 math_functions = ['isNaN', 'isFinite', 'abs', 'acos', 'asin', 'atan', 'atan2', 'ceil', 'cos', 'exp',
                   'floor', 'log', 'max', 'min', 'pow', 'random', 'round', 'sin', 'sqrt', 'tan', 'clamp']
 
-error_message = ' is a mocking function that is not supposed to be called outside of an `Expr` function'
+error_message = ' is a mocking function that is not supposed to be called directly'
 
 
 def isNaN(value):

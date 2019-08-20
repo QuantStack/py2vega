@@ -23,5 +23,5 @@ before_install:
 install:
   - pip install .
 script:
-  - flake8 py2vega --ignore=E501
+  - flake8 py2vega --ignore=E501,W504
   - pytest test
