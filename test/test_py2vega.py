@@ -202,6 +202,15 @@ def assign_func8(value):
         return a
 
 
+def assign_func9(value):
+    a = 38 if isNaN(value) else 32
+    if value < 3:
+        return a
+    else:
+        a = 8
+        return a
+
+
 def test_assign1():
     assert py2vega(assign_func1, whitelist) == "indexof(['USA', 'Japan'], value) != -1 ? 'red' : 'green'"
 
@@ -233,3 +242,7 @@ def test_assign7():
 
 def test_assign8():
     assert py2vega(assign_func8, whitelist) == "if(value < 3, 3, 8)"
+
+
+def test_assign9():
+    assert py2vega(assign_func9, whitelist) == "if(value < 3, isNaN(value) ? 38 : 32, 8)"
