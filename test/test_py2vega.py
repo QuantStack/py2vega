@@ -121,12 +121,47 @@ def invalid_func1():
     print(3)
 
 
+def invalid_func2():
+    return 2
+    return 3
+
+
+def invalid_func3(value):
+    if value < 3:
+        return 3
+
+    return 2
+
+
+def invalid_func4(value):
+    if value < 3:
+        return 2
+        return 1
+    else:
+        return 2
+
+
 def test_invalid1():
     with pytest.raises(RuntimeError):
         py2vega(invalid_func1)
 
 
 def test_invalid2():
+    with pytest.raises(RuntimeError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+        py2vega(invalid_func2)
+
+
+def test_invalid3():
+    with pytest.raises(RuntimeError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+        py2vega(invalid_func3)
+
+
+def test_invalid4():
+    with pytest.raises(RuntimeError, match='A `If` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+        py2vega(invalid_func4)
+
+
+def test_lambda():
     with pytest.raises(RuntimeError):
         py2vega(lambda value: value)
 
@@ -201,6 +236,14 @@ def assign_func8(value):
         a = 8
         return a
 
+
+def assign_func9(value):
+    a = 38 if isNaN(value) else 32
+    if value < 3:
+        return a
+    else:
+        a = 8
+        return a
 
 def assign_func9(value):
     a = 38 if isNaN(value) else 32
