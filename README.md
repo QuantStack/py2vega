@@ -33,7 +33,7 @@ pip install .
 
 ## Usage
 
-`py2vega` provides a `py2vega` function that turns a Python string code or a Python function into a valid [Vega-expression](https://vega.github.io/vega/docs/expressions/). Because it is turning the Python code into a Vega-expression, only a subset of Python is supported: the `if` and `return` statements, the ternary operator, the `in` operator and types like `str`, `bool`, `dict`, `tuple`...
+`py2vega` provides a `py2vega` function that turns a Python string code or a Python function into a valid [Vega-expression](https://vega.github.io/vega/docs/expressions/). Because it is turning the Python code into a [Vega-expression](https://vega.github.io/vega/docs/expressions/), only a subset of Python is supported: the `if` and `return` statements, the ternary operator, the `in` operator and types like `str`, `bool`, `dict`, `tuple`...
 
 ```Python
 from py2vega import py2vega
@@ -65,7 +65,7 @@ def foo(value):
 foo_expr = py2vega(foo, whitelist=['value'])  # "if(isNaN(value), lower('It is NaN...'), value)"
 ```
 
-Even if assignments are prohibited in Vega-expressions, you can assign variables in your Python function, it will be turned into a valid Vega-expression anyway:
+Even if assignments are prohibited in [Vega-expressions](https://vega.github.io/vega/docs/expressions/), you can assign variables in your Python function, it will be turned into a valid [Vega-expression](https://vega.github.io/vega/docs/expressions/) anyway:
 
 ```Python
 from py2vega import py2vega
@@ -78,3 +78,10 @@ def foo(value):
 
 foo_expr = py2vega(foo, whitelist=['value'])  # "value < 3 ? 'green' : 'red'"
 ```
+
+Because of the way [Vega-expressions](https://vega.github.io/vega/docs/expressions/) are defined, there are some rules that must follow your Python function:
+- the function body __must__ end with an `if` statement or a `return` statement
+- `if` statements __can__ be followed by `elif` statements, and __must__ end with an `else` statement
+- each branch of the `if` statement body __must__ end with an `if` statement or a `return` statement
+
+If one of those rules is not respected, a Python `RuntimeError` will be raised.
