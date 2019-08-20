@@ -185,6 +185,23 @@ def assign_func6(value):
     return b
 
 
+def assign_func7(value):
+    if value < 3:
+        a = 3
+        return a
+    else:
+        return a
+
+
+def assign_func8(value):
+    if value < 3:
+        a = 3
+        return a
+    else:
+        a = 8
+        return a
+
+
 def test_assign1():
     assert py2vega(assign_func1, whitelist) == "indexof(['USA', 'Japan'], value) != -1 ? 'red' : 'green'"
 
@@ -207,3 +224,12 @@ def test_assign5():
 
 def test_assign6():
     assert py2vega(assign_func6, whitelist) == "'Hello'"
+
+
+def test_assign7():
+    with pytest.raises(NameError):
+        py2vega(assign_func7, whitelist)
+
+
+def test_assign8():
+    assert py2vega(assign_func8, whitelist) == "if(value < 3, 3, 8)"
