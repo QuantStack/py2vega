@@ -26,7 +26,7 @@ def lower(string):
     raise RuntimeError('lower' + error_message)
 
 
-def pad(string, length[, character, align]):
+def pad(string, length, character, align):
     """Pad a string value with repeated instances of a character up to a specified length.
 
     If character is not specified, a space (‘ ‘) is used. By default, padding is added to the end of a string.
@@ -71,7 +71,7 @@ def split(string, separator, limit):
     raise RuntimeError('split' + error_message)
 
 
-def substring(string, start[, end]):
+def substring(string, start, end):
     """Return a section of string between the start and end indices."""
     raise RuntimeError('substring' + error_message)
 

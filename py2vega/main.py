@@ -5,7 +5,7 @@ import inspect
 import types
 
 from .constants import constants
-from .vega_functions import vega_functions
+from .functions import vega_functions
 
 
 def return_stmt(stmt, whitelist, scope):
