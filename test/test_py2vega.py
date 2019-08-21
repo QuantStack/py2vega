@@ -61,35 +61,35 @@ def test_unary():
 
 def test_binary():
     code = 'value or 3'
-    assert py2vega(code, whitelist) == 'value || 3'
+    assert py2vega(code, whitelist) == '(value || 3)'
 
     code = 'value and 3'
-    assert py2vega(code, whitelist) == 'value && 3'
+    assert py2vega(code, whitelist) == '(value && 3)'
 
     code = 'value + 3'
-    assert py2vega(code, whitelist) == 'value + 3'
+    assert py2vega(code, whitelist) == '(value + 3)'
 
     code = 'value**3'
-    assert py2vega(code, whitelist) == 'pow(value, 3)'
+    assert py2vega(code, whitelist) == '(pow(value, 3))'
 
 
 def test_ternary():
     code = '3 if value else 4'
-    assert py2vega(code, whitelist) == 'value ? 3 : 4'
+    assert py2vega(code, whitelist) == '(value ? 3 : 4)'
 
 
 def test_compare():
     code = '3 < value <= 4'
-    assert py2vega(code, whitelist) == '3 < value <= 4'
+    assert py2vega(code, whitelist) == '(3 < value <= 4)'
 
     code = 'value in (\'ford\', \'chevrolet\')'
-    assert py2vega(code, whitelist) == 'indexof([\'ford\', \'chevrolet\'], value) != -1'
+    assert py2vega(code, whitelist) == '(indexof([\'ford\', \'chevrolet\'], value) != -1)'
 
     code = '\'chevrolet\' in value'
-    assert py2vega(code, whitelist) == 'indexof(value, \'chevrolet\') != -1'
+    assert py2vega(code, whitelist) == '(indexof(value, \'chevrolet\') != -1)'
 
     code = '\'chevrolet\' not in value'
-    assert py2vega(code, whitelist) == 'indexof(value, \'chevrolet\') == -1'
+    assert py2vega(code, whitelist) == '(indexof(value, \'chevrolet\') == -1)'
 
 
 def foo(value):
@@ -97,7 +97,7 @@ def foo(value):
 
 
 def test_function():
-    assert py2vega(foo, whitelist) == 'value < 150 ? \'red\' : \'green\''
+    assert py2vega(foo, whitelist) == '((value < 150) ? \'red\' : \'green\')'
 
 
 def test_whitelist():
@@ -176,7 +176,7 @@ def conditional_func(value):
 
 
 def test_if_stmt():
-    assert py2vega(conditional_func, whitelist) == "if(value < 3, 'red', if(value < 5, 'green', 'yellow'))"
+    assert py2vega(conditional_func, whitelist) == "if((value < 3), 'red', if((value < 5), 'green', 'yellow'))"
 
 
 def assign_func1(value):
@@ -255,11 +255,11 @@ def assign_func9(value):
 
 
 def test_assign1():
-    assert py2vega(assign_func1, whitelist) == "indexof(['USA', 'Japan'], value) != -1 ? 'red' : 'green'"
+    assert py2vega(assign_func1, whitelist) == "((indexof(['USA', 'Japan'], value) != -1) ? 'red' : 'green')"
 
 
 def test_assign2():
-    assert py2vega(assign_func2, whitelist) == "value < 3 ? 'green' : 'red'"
+    assert py2vega(assign_func2, whitelist) == "((value < 3) ? 'green' : 'red')"
 
 
 def test_assign3():
@@ -284,8 +284,8 @@ def test_assign7():
 
 
 def test_assign8():
-    assert py2vega(assign_func8, whitelist) == "if(value < 3, 3, 8)"
+    assert py2vega(assign_func8, whitelist) == "if((value < 3), 3, 8)"
 
 
 def test_assign9():
-    assert py2vega(assign_func9, whitelist) == "if(value < 3, isNaN(value) ? 38 : 32, 8)"
+    assert py2vega(assign_func9, whitelist) == "if((value < 3), (isNaN(value) ? 38 : 32), 8)"
