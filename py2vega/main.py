@@ -141,7 +141,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
     def visit_BoolOp(self, node):
         """Turn a Python boolop expression into a Vega-expression."""
-        return '{} {} {}'.format(
+        return '({} {} {})'.format(
             self.visit(node.values[0]),
             '||' if isinstance(node.op, ast.Or) else '&&',
             self.visit(node.values[1])
@@ -167,11 +167,11 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
     def visit_BinOp(self, node):
         """Turn a Python binop expression into a Vega-expression."""
-        return self._visit_binop_impl(node.left, node.op, node.right)
+        return '({})'.format(self._visit_binop_impl(node.left, node.op, node.right))
 
     def visit_IfExp(self, node):
         """Turn a Python if expression into a Vega-expression."""
-        return '{} ? {} : {}'.format(
+        return '({} ? {} : {})'.format(
             self.visit(node.test),
             self.visit(node.body),
             self.visit(node.orelse)
@@ -184,7 +184,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         for idx in range(len(node.comparators)):
             left_operand = self._visit_binop_impl(left_operand, node.ops[idx], node.comparators[idx])
 
-        return left_operand
+        return '({})'.format(left_operand)
 
     def visit_Name(self, node):
         """Turn a Python name expression into a Vega-expression."""
