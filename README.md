@@ -80,8 +80,8 @@ foo_expr = py2vega(foo, whitelist=['value'])  # "value < 3 ? 'green' : 'red'"
 ```
 
 Because of the way [Vega-expressions](https://vega.github.io/vega/docs/expressions/) are defined, there are some rules that must follow your Python function:
-- the function body __must__ end with an `if` statement or a `return` statement
-- `if` statements __can__ be followed by `elif` statements, and __must__ end with an `else` statement
-- each branch of the `if` statement body __must__ end with an `if` statement or a `return` statement
+- the function body __must__ end with an `if` __or__ `return` statement and __cannot__ contain more than one `if` __or__ `return` statement
+- `if` statements __can__ be followed by `elif` statements but __must__ be followed by an `else` statement
+- the `if`/`elif`/`else` body __must__ end with an `if` __or__ `return` statement and __cannot__ contain more than one `if` __or__ `return` statement
 
 If one of those rules is not respected, a Python `RuntimeError` will be raised.
