@@ -195,7 +195,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if node.id in constants or node.id in self.whitelist:
             return node.id
 
-        raise NameError('name \'{}\' is not defined, only a subset of Python is supported'.format(node.id))
+        raise NameError('name \'{}\' is not defined, available variables are {}'.format(node.id, self.whitelist))
 
     def visit_Call(self, node):
         """Turn a Python call expression into a Vega-expression."""
