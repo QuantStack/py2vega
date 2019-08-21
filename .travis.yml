@@ -19,7 +19,7 @@ before_install:
   - conda info -a
   - conda create -q -n test-environment python=$PYTHON_VERSION
   - source activate test-environment
-  - conda install -c conda-forge pytest flake8
+  - conda install -c conda-forge pytest flake8 nodejs
 install:
   - pip install .
 script:

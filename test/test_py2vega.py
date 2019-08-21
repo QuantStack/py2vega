@@ -3,6 +3,8 @@ import pytest
 from py2vega import py2vega
 from py2vega.functions.math import isNaN
 
+from .utils import evaluate_js
+
 whitelist = ['value', 'x', 'y', 'height', 'width', 'row', 'column']
 
 
@@ -97,7 +99,13 @@ def foo(value):
 
 
 def test_function():
-    assert py2vega(foo, whitelist) == '((value < 150) ? \'red\' : \'green\')'
+    expr = py2vega(foo, whitelist)
+
+    assert expr == '((value < 150) ? \'red\' : \'green\')'
+
+    assert evaluate_js(expr, {'value': 10}) == foo(10)
+    assert evaluate_js(expr, {'value': 150}) == foo(150)
+    assert evaluate_js(expr, {'value': 151}) == foo(151)
 
 
 def test_whitelist():
@@ -259,7 +267,13 @@ def test_assign1():
 
 
 def test_assign2():
-    assert py2vega(assign_func2, whitelist) == "((value < 3) ? 'green' : 'red')"
+    expr = py2vega(assign_func2, whitelist)
+
+    assert expr == "((value < 3) ? 'green' : 'red')"
+
+    assert evaluate_js(expr, {'value': 1}) == assign_func2(1)
+    assert evaluate_js(expr, {'value': 3}) == assign_func2(3)
+    assert evaluate_js(expr, {'value': 5}) == assign_func2(5)
 
 
 def test_assign3():
