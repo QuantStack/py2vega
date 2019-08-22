@@ -6,7 +6,7 @@ __AUTHOR__ = 'QuantStack dev team'
 
 setup(
     name='py2vega',
-    version='0.3.0',
+    version='0.3.1',
     description='A Python to Vega-expression transpiler.',
     author=__AUTHOR__,
     maintainer=__AUTHOR__,
