@@ -1,6 +1,8 @@
 """Python to VegaExpression transpiler."""
 
 import ast
+import sys
+
 import inspect
 import types
 
@@ -38,7 +40,8 @@ def check_validity(nodes, origin_node):
                     origin_node.__class__.__name__))
     if not isinstance(nodes[-1], ast.If) and not isinstance(nodes[-1], ast.Return):
         raise RuntimeError(
-            'The last element of a `{}` node body must be an `if` or `return` statement'.format(origin_node.__class__.__name__))
+            'The last element of a `{}` node body must be an `if` or `return` statement, but a value of {} was found'.format(
+                origin_node.__class__.__name__, nodes[-1].__class__.__name__))
 
 
 class VegaExpressionVisitor(ast.NodeVisitor):
@@ -188,6 +191,14 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         """Turn a Python name expression into a Vega-expression."""
+        if sys.version_info[0] == 2:
+            if node.id == 'False':
+                return 'false'
+            if node.id == 'True':
+                return 'true'
+            if node.id == 'None':
+                return 'null'
+
         # If it's in the scope, return it's evaluated expression
         if node.id in self.scope:
             return self.scope[node.id]
