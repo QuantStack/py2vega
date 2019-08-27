@@ -21,6 +21,10 @@ operator_mapping = {
 }
 
 
+class Py2VegaSyntaxError(SyntaxError):
+    pass
+
+
 def check_validity(nodes, origin_node):
     """Check whether or not a list of nodes is valid.
 
@@ -30,16 +34,16 @@ def check_validity(nodes, origin_node):
     - everything but the last element is not an `if` statement or a `return` statement
     """
     if len(nodes) == 0:
-        raise RuntimeError(
+        raise Py2VegaSyntaxError(
             'A `{}` node body must contain at least one `if` statement or one `return` statement'.format(
                 origin_node.__class__.__name__))
     for node in nodes[:-1]:
         if isinstance(node, ast.If) or isinstance(node, ast.Return):
-            raise RuntimeError(
+            raise Py2VegaSyntaxError(
                 'A `{}` node body cannot contain an `if` or `return` statement if it is not the last element of the body'.format(
                     origin_node.__class__.__name__))
     if not isinstance(nodes[-1], ast.If) and not isinstance(nodes[-1], ast.Return):
-        raise RuntimeError(
+        raise Py2VegaSyntaxError(
             'The last element of a `{}` node body must be an `if` or `return` statement, but a value of {} was found'.format(
                 origin_node.__class__.__name__, nodes[-1].__class__.__name__))
 
@@ -53,7 +57,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         """Throwing an error by default."""
-        raise RuntimeError('Unsupported {} node, only a subset of Python is supported'.format(node.__class__.__name__))
+        raise Py2VegaSyntaxError('Unsupported {} node, only a subset of Python is supported'.format(node.__class__.__name__))
 
     def visit_Return(self, node):
         """Turn a Python return statement into a Vega-expression."""
@@ -124,7 +128,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
         for target in node.targets:
             if not isinstance(target, ast.Name):
-                raise RuntimeError('Unsupported target {} for the assignment'.format(target.__class__.__name__))
+                raise Py2VegaSyntaxError('Unsupported target {} for the assignment'.format(target.__class__.__name__))
 
             self.scope[target.id] = value
 
@@ -140,7 +144,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if isinstance(node.op, ast.UAdd):
             return '+{}'.format(self.visit(node.operand))
 
-        raise RuntimeError('Unsupported {} operator, only a subset of Python is supported'.format(node.op.__class__.__name__))
+        raise Py2VegaSyntaxError('Unsupported {} operator, only a subset of Python is supported'.format(node.op.__class__.__name__))
 
     def visit_BoolOp(self, node):
         """Turn a Python boolop expression into a Vega-expression."""
@@ -164,7 +168,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         operator = operator_mapping.get(op.__class__)
 
         if operator is None:
-            raise RuntimeError('Unsupported {} operator, only a subset of Python is supported'.format(op.__class__.__name__))
+            raise Py2VegaSyntaxError('Unsupported {} operator, only a subset of Python is supported'.format(op.__class__.__name__))
 
         return '{} {} {}'.format(left, operator, right)
 
