@@ -1,6 +1,7 @@
 import pytest
 
 from py2vega import py2vega
+from py2vega.main import Py2VegaSyntaxError
 from py2vega.functions.math import isNaN
 
 whitelist = ['value', 'x', 'y', 'height', 'width', 'row', 'column']
@@ -142,22 +143,22 @@ def invalid_func4(value):
 
 
 def test_invalid1():
-    with pytest.raises(RuntimeError):
+    with pytest.raises(Py2VegaSyntaxError):
         py2vega(invalid_func1)
 
 
 def test_invalid2():
-    with pytest.raises(RuntimeError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+    with pytest.raises(Py2VegaSyntaxError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
         py2vega(invalid_func2)
 
 
 def test_invalid3():
-    with pytest.raises(RuntimeError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+    with pytest.raises(Py2VegaSyntaxError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
         py2vega(invalid_func3)
 
 
 def test_invalid4():
-    with pytest.raises(RuntimeError, match='A `If` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+    with pytest.raises(Py2VegaSyntaxError, match='A `If` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
         py2vega(invalid_func4)
 
 
