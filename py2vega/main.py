@@ -20,6 +20,16 @@ operator_mapping = {
     ast.Mod: '%'
 }
 
+# Note that built-in functions like `abs`, `min`, `max` which already have an equivalent in
+# Vega expressions are already supported automatically
+builtin_function_mapping = {
+    'bool': '(isValid({args}) ? toBoolean({args}) : false)',
+    'float': 'toNumber({args})',
+    'int': 'floor(toNumber({args}))',
+    'len': 'length({args})',
+    'str': 'toString({args})'
+}
+
 
 class Py2VegaSyntaxError(SyntaxError):
     pass
@@ -220,11 +230,13 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Attribute):
             func_name = node.func.attr
 
+        args = ', '.join([self.visit(arg) for arg in node.args])
+
+        if func_name in builtin_function_mapping:
+            return builtin_function_mapping[func_name].format(args=args)
+
         if func_name in vega_functions:
-            return '{}({})'.format(
-                func_name,
-                ', '.join([self.visit(arg) for arg in node.args])
-            )
+            return '{func_name}({args})'.format(func_name=func_name, args=args)
 
         raise NameError('name \'{}\' is not defined, only a subset of Python is supported'.format(func_name))
 

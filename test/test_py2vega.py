@@ -93,6 +93,35 @@ def test_compare():
     assert py2vega(code, whitelist) == '(indexof(value, \'chevrolet\') == -1)'
 
 
+def test_call():
+    code = 'toBoolean(3)'
+    assert py2vega(code, whitelist) == 'toBoolean(3)'
+
+    code = 'bool(3)'
+    assert py2vega(code, whitelist) == '(isValid(3) ? toBoolean(3) : false)'
+
+    code = 'toString(3)'
+    assert py2vega(code, whitelist) == 'toString(3)'
+
+    code = 'str(3)'
+    assert py2vega(code, whitelist) == 'toString(3)'
+
+    code = 'toNumber("3")'
+    assert py2vega(code, whitelist) == 'toNumber(\'3\')'
+
+    code = 'float("3")'
+    assert py2vega(code, whitelist) == 'toNumber(\'3\')'
+
+    code = 'int("3")'
+    assert py2vega(code, whitelist) == 'floor(toNumber(\'3\'))'
+
+    code = 'length(value)'
+    assert py2vega(code, whitelist) == 'length(value)'
+
+    code = 'len(value)'
+    assert py2vega(code, whitelist) == 'length(value)'
+
+
 def foo(value):
     return 'red' if value < 150 else 'green'
 
