@@ -1,7 +1,7 @@
 import pytest
 
 from py2vega import py2vega
-from py2vega.main import Py2VegaSyntaxError
+from py2vega.main import Py2VegaSyntaxError, Py2VegaNameError
 from py2vega.functions.math import isNaN
 
 whitelist = ['value', 'x', 'y', 'height', 'width', 'row', 'column']
@@ -73,6 +73,11 @@ def test_binary():
     code = 'value**3'
     assert py2vega(code, whitelist) == '(pow(value, 3))'
 
+    # Unsupported operator
+    code = 'value & x'
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega(code, whitelist)
+
 
 def test_ternary():
     code = '3 if value else 4'
@@ -100,7 +105,7 @@ def test_call():
     code = 'bool(3)'
     assert py2vega(code, whitelist) == '(isValid(3) ? toBoolean(3) : false)'
 
-    code = 'toString(3)'
+    code = 'py2vega.string.toString(3)'
     assert py2vega(code, whitelist) == 'toString(3)'
 
     code = 'str(3)'
@@ -120,6 +125,11 @@ def test_call():
 
     code = 'len(value)'
     assert py2vega(code, whitelist) == 'length(value)'
+
+    # Unsupported function
+    code = 'foo(value)'
+    with pytest.raises(Py2VegaNameError):
+        py2vega(code, whitelist)
 
 
 def test_subscript():
@@ -146,13 +156,18 @@ def test_subscript():
     with pytest.raises(Py2VegaSyntaxError):
         py2vega(code, whitelist)
 
+    # Unsupported ExtSlice node
+    code = 'value[::2, 1:]'
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega(code, whitelist)
 
-def foo(value):
+
+def func(value):
     return 'red' if value < 150 else 'green'
 
 
 def test_function():
-    assert py2vega(foo, whitelist) == '((value < 150) ? \'red\' : \'green\')'
+    assert py2vega(func, whitelist) == '((value < 150) ? \'red\' : \'green\')'
 
 
 def test_whitelist():
@@ -164,16 +179,21 @@ def test_whitelist():
     assert py2vega('PI') == 'PI'
 
 
-def bar():
+def math_func():
     return isNaN(3)
 
 
 def test_math():
-    assert py2vega(bar) == 'isNaN(3)'
+    assert py2vega(math_func) == 'isNaN(3)'
 
 
 def invalid_func1():
     print(3)
+
+
+def test_invalid1():
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega(invalid_func1)
 
 
 def invalid_func2():
@@ -181,11 +201,21 @@ def invalid_func2():
     return 3
 
 
+def test_invalid2():
+    with pytest.raises(Py2VegaSyntaxError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+        py2vega(invalid_func2)
+
+
 def invalid_func3(value):
     if value < 3:
         return 3
 
     return 2
+
+
+def test_invalid3():
+    with pytest.raises(Py2VegaSyntaxError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
+        py2vega(invalid_func3)
 
 
 def invalid_func4(value):
@@ -196,24 +226,29 @@ def invalid_func4(value):
         return 2
 
 
-def test_invalid1():
-    with pytest.raises(Py2VegaSyntaxError):
-        py2vega(invalid_func1)
-
-
-def test_invalid2():
-    with pytest.raises(Py2VegaSyntaxError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
-        py2vega(invalid_func2)
-
-
-def test_invalid3():
-    with pytest.raises(Py2VegaSyntaxError, match='A `FunctionDef` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
-        py2vega(invalid_func3)
-
-
 def test_invalid4():
     with pytest.raises(Py2VegaSyntaxError, match='A `If` node body cannot contain an `if` or `return` statement if it is not the last element of the body'):
         py2vega(invalid_func4)
+
+
+def invalid_func5(value):
+    if value < 3:
+        return 3
+
+
+def test_invalid5():
+    with pytest.raises(Py2VegaSyntaxError, match='A `If` node body must contain at least one `if` statement or one `return` statement'):
+        py2vega(invalid_func5)
+
+
+def invalid_func6(value):
+    del value
+    return 3
+
+
+def test_invalid6():
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega(invalid_func6)
 
 
 def test_lambda():
@@ -240,11 +275,19 @@ def assign_func1(value):
     return 'red' if value in val else 'green'
 
 
+def test_assign1():
+    assert py2vega(assign_func1, whitelist) == "((indexof(['USA', 'Japan'], value) != -1) ? 'red' : 'green')"
+
+
 def assign_func2(value):
     a = 'green'
     b = 'red'
 
     return a if value < 3 else b
+
+
+def test_assign2():
+    assert py2vega(assign_func2, whitelist) == "((value < 3) ? 'green' : 'red')"
 
 
 def assign_func3(value):
@@ -254,6 +297,10 @@ def assign_func3(value):
     return a
 
 
+def test_assign3():
+    assert py2vega(assign_func3, whitelist) == "'red'"
+
+
 def assign_func4(value):
     a = 'green'
     b = a
@@ -261,10 +308,18 @@ def assign_func4(value):
     return b
 
 
+def test_assign4():
+    assert py2vega(assign_func4, whitelist) == "'green'"
+
+
 def assign_func5(value):
     a = b = 'Hello'
 
     return (a, b)
+
+
+def test_assign5():
+    assert py2vega(assign_func5, whitelist) == "['Hello', 'Hello']"
 
 
 def assign_func6(value):
@@ -275,12 +330,21 @@ def assign_func6(value):
     return b
 
 
+def test_assign6():
+    assert py2vega(assign_func6, whitelist) == "'Hello'"
+
+
 def assign_func7(value):
     if value < 3:
         a = 3
         return a
     else:
         return a
+
+
+def test_assign7():
+    with pytest.raises(NameError):
+        py2vega(assign_func7, whitelist)
 
 
 def assign_func8(value):
@@ -292,55 +356,28 @@ def assign_func8(value):
         return a
 
 
-def assign_func9(value):
-    a = 38 if isNaN(value) else 32
-    if value < 3:
-        return a
-    else:
-        a = 8
-        return a
-
-def assign_func9(value):
-    a = 38 if isNaN(value) else 32
-    if value < 3:
-        return a
-    else:
-        a = 8
-        return a
-
-
-def test_assign1():
-    assert py2vega(assign_func1, whitelist) == "((indexof(['USA', 'Japan'], value) != -1) ? 'red' : 'green')"
-
-
-def test_assign2():
-    assert py2vega(assign_func2, whitelist) == "((value < 3) ? 'green' : 'red')"
-
-
-def test_assign3():
-    assert py2vega(assign_func3, whitelist) == "'red'"
-
-
-def test_assign4():
-    assert py2vega(assign_func4, whitelist) == "'green'"
-
-
-def test_assign5():
-    assert py2vega(assign_func5, whitelist) == "['Hello', 'Hello']"
-
-
-def test_assign6():
-    assert py2vega(assign_func6, whitelist) == "'Hello'"
-
-
-def test_assign7():
-    with pytest.raises(NameError):
-        py2vega(assign_func7, whitelist)
-
-
 def test_assign8():
     assert py2vega(assign_func8, whitelist) == "if((value < 3), 3, 8)"
 
 
+def assign_func9(value):
+    a = 38 if isNaN(value) else 32
+    if value < 3:
+        return a
+    else:
+        a = 8
+        return a
+
+
 def test_assign9():
     assert py2vega(assign_func9, whitelist) == "if((value < 3), (isNaN(value) ? 38 : 32), 8)"
+
+
+def assign_func10(value):
+    value[0] = 36
+    return 3
+
+
+def test_assign10():
+    with pytest.raises(Py2VegaSyntaxError, match='Unsupported target'):
+        assert py2vega(assign_func10, whitelist)
