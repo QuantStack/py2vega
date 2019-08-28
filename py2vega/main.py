@@ -240,6 +240,16 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
         raise NameError('name \'{}\' is not defined, only a subset of Python is supported'.format(func_name))
 
+    def visit_Subscript(self, node):
+        if isinstance(node.slice, ast.Index):
+            return '{value}[{index}]'.format(
+                value=self.visit(node.value),
+                index=self.visit(node.slice.value)
+            )
+
+        raise Py2VegaSyntaxError('Unsupported {} node, only a subset of Python is supported'.format(
+            node.slice.__class__.__name__))
+
     def visit_Attribute(self, node):
         """Turn a Python attribute expression into a Vega-expression."""
         return node.attr
