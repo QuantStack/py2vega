@@ -30,9 +30,9 @@ before_install:
   - conda info -a
   - conda create -q -n test-environment python=$PYTHON_VERSION
   - source activate test-environment
-  - conda install -c conda-forge pytest flake8
+  - conda install -c conda-forge pytest pytest-cov flake8
 install:
   - pip install .
 script:
   - flake8 py2vega --ignore=E501,W504
-  - pytest test
+  - pytest --cov-report term-missing --cov=py2vega.main test
