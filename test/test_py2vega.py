@@ -122,6 +122,31 @@ def test_call():
     assert py2vega(code, whitelist) == 'length(value)'
 
 
+def test_subscript():
+    code = 'value[0]'
+    assert py2vega(code, whitelist) == 'value[0]'
+
+    code = '[34, 32][0 if value < 2 else 1]'
+    assert py2vega(code, whitelist) == '[34, 32][((value < 2) ? 0 : 1)]'
+
+    code = 'value[:2]'
+    assert py2vega(code, whitelist) == 'slice(value, 0, 2)'
+
+    code = 'value[1:]'
+    assert py2vega(code, whitelist) == 'slice(value, 1)'
+
+    code = 'value[:]'
+    assert py2vega(code, whitelist) == 'slice(value, 0)'
+
+    code = 'value[1:2]'
+    assert py2vega(code, whitelist) == 'slice(value, 1, 2)'
+
+    # Unsupported step parameter
+    code = 'value[::2]'
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega(code, whitelist)
+
+
 def foo(value):
     return 'red' if value < 150 else 'green'
 
