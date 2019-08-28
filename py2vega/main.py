@@ -275,15 +275,6 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         return node.attr
 
 
-def visit_nodes(nodes, whitelist):
-    """Visit a list of nodes, and return the equivalent Vega expression."""
-    scope = {}
-    check_validity(nodes, )
-    for node in nodes[:-1]:
-        VegaExpressionVisitor(whitelist, scope).visit(node)
-    return VegaExpressionVisitor(whitelist, scope).visit(nodes[-1])
-
-
 def py2vega(value, whitelist=[]):
     """Convert Python code or Python function to a valid Vega expression."""
     if isinstance(value, str):
