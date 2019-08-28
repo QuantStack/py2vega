@@ -32,7 +32,15 @@ builtin_function_mapping = {
 
 
 class Py2VegaSyntaxError(SyntaxError):
-    pass
+    def __init__(self, message):
+        error_msg = message + ', note that only a subset of Python is supported'
+        super(Py2VegaSyntaxError, self).__init__(error_msg)
+
+
+class Py2VegaNameError(NameError):
+    def __init__(self, message):
+        error_msg = message + ', note that only a subset of Python is supported'
+        super(Py2VegaNameError, self).__init__(error_msg)
 
 
 def check_validity(nodes, origin_node):
@@ -67,7 +75,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         """Throwing an error by default."""
-        raise Py2VegaSyntaxError('Unsupported {} node, only a subset of Python is supported'.format(node.__class__.__name__))
+        raise Py2VegaSyntaxError('Unsupported {} node'.format(node.__class__.__name__))
 
     def visit_Return(self, node):
         """Turn a Python return statement into a Vega-expression."""
@@ -101,7 +109,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
             return 'true'
         if node.value is None:
             return 'null'
-        raise NameError('name \'{}\' is not defined, only a subset of Python is supported'.format(str(node.value)))
+        raise Py2VegaNameError('name \'{}\' is not defined'.format(str(node.value)))
 
     def visit_Num(self, node):
         """Turn a Python num expression into a Vega-expression."""
@@ -154,7 +162,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if isinstance(node.op, ast.UAdd):
             return '+{}'.format(self.visit(node.operand))
 
-        raise Py2VegaSyntaxError('Unsupported {} operator, only a subset of Python is supported'.format(node.op.__class__.__name__))
+        raise Py2VegaSyntaxError('Unsupported {} operator'.format(node.op.__class__.__name__))
 
     def visit_BoolOp(self, node):
         """Turn a Python boolop expression into a Vega-expression."""
@@ -178,7 +186,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         operator = operator_mapping.get(op.__class__)
 
         if operator is None:
-            raise Py2VegaSyntaxError('Unsupported {} operator, only a subset of Python is supported'.format(op.__class__.__name__))
+            raise Py2VegaSyntaxError('Unsupported {} operator'.format(op.__class__.__name__))
 
         return '{} {} {}'.format(left, operator, right)
 
@@ -220,7 +228,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if node.id in constants or node.id in self.whitelist:
             return node.id
 
-        raise NameError('name \'{}\' is not defined, available variables are {}'.format(node.id, self.whitelist))
+        raise Py2VegaNameError('name \'{}\' is not defined, available variables are {}'.format(node.id, self.whitelist))
 
     def visit_Call(self, node):
         """Turn a Python call expression into a Vega-expression."""
@@ -238,7 +246,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if func_name in vega_functions:
             return '{func_name}({args})'.format(func_name=func_name, args=args)
 
-        raise NameError('name \'{}\' is not defined, only a subset of Python is supported'.format(func_name))
+        raise Py2VegaNameError('name \'{}\' is not defined'.format(func_name))
 
     def visit_Subscript(self, node):
         """Turn a Python Subscript node into a Vega-expression."""
@@ -252,8 +260,7 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
         if isinstance(node.slice, ast.Slice):
             if node.slice.step is not None:
-                raise Py2VegaSyntaxError('Unsupported step for {} node, only a subset of Python is supported'.format(
-                    node.slice.__class__.__name__))
+                raise Py2VegaSyntaxError('Unsupported step for {} node'.format(node.slice.__class__.__name__))
 
             args = [value, '0' if node.slice.lower is None else self.visit(node.slice.lower)]
             if node.slice.upper is not None:
@@ -261,21 +268,11 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
             return 'slice({args})'.format(args=', '.join(args))
 
-        raise Py2VegaSyntaxError('Unsupported {} node, only a subset of Python is supported'.format(
-            node.slice.__class__.__name__))
+        raise Py2VegaSyntaxError('Unsupported {} node'.format(node.slice.__class__.__name__))
 
     def visit_Attribute(self, node):
         """Turn a Python attribute expression into a Vega-expression."""
         return node.attr
-
-
-def visit_nodes(nodes, whitelist):
-    """Visit a list of nodes, and return the equivalent Vega expression."""
-    scope = {}
-    check_validity(nodes, )
-    for node in nodes[:-1]:
-        VegaExpressionVisitor(whitelist, scope).visit(node)
-    return VegaExpressionVisitor(whitelist, scope).visit(nodes[-1])
 
 
 def py2vega(value, whitelist=[]):
