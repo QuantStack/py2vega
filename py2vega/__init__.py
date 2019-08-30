@@ -1,1 +1,1 @@
-from .main import py2vega  # noqa
+from .main import py2vega, Variable  # noqa

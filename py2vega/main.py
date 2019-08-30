@@ -10,6 +10,15 @@ from .constants import constants
 from .functions import vega_functions
 
 
+class Variable():
+    """Helper class for defining a variable in whitelisting."""
+
+    def __init__(self, name, members):
+        """Construct a Variable, given its name and available members."""
+        self.name = name
+        self.members = members
+
+
 operator_mapping = {
     ast.Eq: '==', ast.NotEq: '!=',
     ast.Lt: '<', ast.LtE: '<=',
@@ -43,7 +52,7 @@ class Py2VegaNameError(NameError):
         super(Py2VegaNameError, self).__init__(error_msg)
 
 
-def check_validity(nodes, origin_node):
+def validate(nodes, origin_node):
     """Check whether or not a list of nodes is valid.
 
     A list of nodes is considered valid when:
@@ -66,6 +75,48 @@ def check_validity(nodes, origin_node):
                 origin_node.__class__.__name__, nodes[-1].__class__.__name__))
 
 
+def valid_attribute_impl(node, var):
+    """Check the attribute access validity. Returns True if the member access is valid, False otherwise."""
+    if node.value.id == var.name and node.attr in var.members:
+        return True
+
+    for elt in var.members:
+        if isinstance(elt, str):
+            if elt == node.attr:
+                return True
+
+        if isinstance(elt, Variable):
+            if elt.name == node.attr:
+                return True
+
+    return False
+
+
+def valid_attribute(node, whitelist):
+    """Check the attribute access validity. Returns True if the member access is valid, False otherwise."""
+    # TODO: Support more than ast.Name?
+    if not isinstance(node.value, ast.Name):
+        if isinstance(node.value, ast.Attribute):
+            return valid_attribute(node.value, whitelist)
+
+        return False
+
+    is_valid = False
+
+    for elt in whitelist:
+        if isinstance(elt, str):
+            continue
+
+        if isinstance(elt, Variable):
+            is_valid_impl = valid_attribute_impl(node, elt)
+            is_valid = is_valid_impl or is_valid
+
+        if is_valid:
+            return is_valid
+
+    return is_valid
+
+
 class VegaExpressionVisitor(ast.NodeVisitor):
     """Visitor that turns a Node into a Vega expression."""
 
@@ -85,13 +136,13 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         """Turn a Python if statement into a Vega-expression."""
         # Visiting body
         body_scope = self.scope.copy()
-        check_validity(node.body, node)
+        validate(node.body, node)
         for stmt in node.body[:-1]:
             VegaExpressionVisitor(self.whitelist, body_scope).visit(stmt)
 
         # Visiting orelse
         orelse_scope = self.scope.copy()
-        check_validity(node.orelse, node)
+        validate(node.orelse, node)
         for stmt in node.orelse[:-1]:
             VegaExpressionVisitor(self.whitelist, orelse_scope).visit(stmt)
 
@@ -225,10 +276,11 @@ class VegaExpressionVisitor(ast.NodeVisitor):
         if node.id in self.scope:
             return self.scope[node.id]
 
-        if node.id in constants or node.id in self.whitelist:
+        whitelisted_vars = [elt.name if isinstance(elt, Variable) else elt for elt in self.whitelist]
+        if node.id in constants or node.id in whitelisted_vars:
             return node.id
 
-        raise Py2VegaNameError('name \'{}\' is not defined, available variables are {}'.format(node.id, self.whitelist))
+        raise Py2VegaNameError('name \'{}\' is not defined, available variables are {}'.format(node.id, whitelisted_vars))
 
     def visit_Call(self, node):
         """Turn a Python call expression into a Vega-expression."""
@@ -272,7 +324,12 @@ class VegaExpressionVisitor(ast.NodeVisitor):
 
     def visit_Attribute(self, node):
         """Turn a Python attribute expression into a Vega-expression."""
-        return node.attr
+        value = self.visit(node.value)
+
+        if not valid_attribute(node, self.whitelist):
+            raise Py2VegaSyntaxError('Cannot access `{}` member from `{}`'.format(node.attr, value))
+
+        return '{}.{}'.format(value, node.attr)
 
 
 def py2vega(value, whitelist=[]):
@@ -291,7 +348,7 @@ def py2vega(value, whitelist=[]):
         func = ast.parse(value, '<string>', 'exec').body[0]
 
         scope = {}
-        check_validity(func.body, func)
+        validate(func.body, func)
         for node in func.body[:-1]:
             VegaExpressionVisitor(whitelist, scope).visit(node)
         return VegaExpressionVisitor(whitelist, scope).visit(func.body[-1])
