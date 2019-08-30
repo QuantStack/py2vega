@@ -46,7 +46,7 @@ def foo(value):
     else:
         return 'yellow'
 
-foo_expr = py2vega(foo, whitelist=['value'])  # "if(value < 3, 'red', if(value < 5, 'green', 'yellow'))"
+py2vega(foo, whitelist=['value'])  # "if(value < 3, 'red', if(value < 5, 'green', 'yellow'))"
 ```
 
 `py2vega` also provides functions and constants the same way they are available for vega-expressions:
@@ -62,7 +62,7 @@ def foo(value):
     else:
         return value
 
-foo_expr = py2vega(foo, whitelist=['value'])  # "if(isNaN(value), lower('It is NaN...'), value)"
+py2vega(foo, whitelist=['value'])  # "if(isNaN(value), lower('It is NaN...'), value)"
 ```
 
 Even if assignments are prohibited in [Vega-expressions](https://vega.github.io/vega/docs/expressions/), you can assign variables in your Python function, it will be turned into a valid [Vega-expression](https://vega.github.io/vega/docs/expressions/) anyway:
@@ -76,7 +76,7 @@ def foo(value):
 
     return a if value < 3 else b
 
-foo_expr = py2vega(foo, whitelist=['value'])  # "value < 3 ? 'green' : 'red'"
+py2vega(foo, whitelist=['value'])  # "value < 3 ? 'green' : 'red'"
 ```
 
 You can provide a variable whitelist as a list of strings, each string being an available variable. You can also allow member access using the `Variable` class from py2vega:
@@ -84,10 +84,10 @@ You can provide a variable whitelist as a list of strings, each string being an 
 ```Python
 from py2vega import py2vega, Variable
 
-expr1 = py2vega('3 if value > 0 else 4', whitelist=['value'])  # Returns "value > 0 ? 3 : 4"
-expr2 = py2vega('3 if my_variable > 0 else 4', whitelist=['value'])  # Raises a SyntaxError, `my_variable` is not whitelisted
-expr3 = py2vega('3 if value.member1 > value.member2 else 4', whitelist=[Variable('value', ['member1', 'member2'])])  # Returns "value.member1 > value.member2 ? 3 : 4"
-expr4 = py2vega('3 if value.member3 > 0 else 4', whitelist=[Variable('value', ['member1', 'member2'])])  # Raises a SyntaxError, `value.member3` is not whitelisted`
+py2vega('3 if value > 0 else 4', whitelist=['value'])  # Returns "value > 0 ? 3 : 4"
+py2vega('3 if my_variable > 0 else 4', whitelist=['value'])  # Raises a SyntaxError, `my_variable` is not whitelisted
+py2vega('3 if value.member1 > value.member2 else 4', whitelist=[Variable('value', ['member1', 'member2'])])  # Returns "value.member1 > value.member2 ? 3 : 4"
+py2vega('3 if value.member3 > 0 else 4', whitelist=[Variable('value', ['member1', 'member2'])])  # Raises a SyntaxError, `value.member3` is not whitelisted`
 ```
 
 
