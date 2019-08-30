@@ -1,10 +1,10 @@
 import pytest
 
-from py2vega import py2vega
+from py2vega import py2vega, Variable
 from py2vega.main import Py2VegaSyntaxError, Py2VegaNameError
 from py2vega.functions.math import isNaN
 
-whitelist = ['value', 'x', 'y', 'height', 'width', 'row', 'column']
+whitelist = ['value', 'x', Variable('cell', ['value', 'x'])]
 
 
 def test_nameconstant():
@@ -160,6 +160,33 @@ def test_subscript():
     code = 'value[::2, 1:]'
     with pytest.raises(Py2VegaSyntaxError):
         py2vega(code, whitelist)
+
+
+def test_attribute():
+    code = 'cell.value'
+    assert py2vega(code, whitelist) == 'cell.value'
+
+    with pytest.raises(NameError):
+        py2vega('cell.value')
+
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega('cell.undef', whitelist)
+
+    assert py2vega('3 if value.member1 > value.member2 else 4', whitelist=[Variable('value', ['member1', 'member2'])]) == "((value.member1 > value.member2) ? 3 : 4)"
+
+    # Nested member access
+    whitelisted_vars = [Variable('nested_var', [Variable('var', ['test']), 'x'])]
+
+    assert py2vega('nested_var.x', whitelisted_vars) == 'nested_var.x'
+
+    with pytest.raises(NameError):
+        py2vega('var.test', whitelisted_vars)
+
+    assert py2vega('nested_var.var.test', whitelisted_vars) == 'nested_var.var.test'
+
+    # Cannot validate a member access on an unknown variable
+    with pytest.raises(Py2VegaSyntaxError):
+        py2vega('nested_var[0].test', whitelisted_vars)
 
 
 def func(value):

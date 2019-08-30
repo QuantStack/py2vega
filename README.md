@@ -79,6 +79,18 @@ def foo(value):
 foo_expr = py2vega(foo, whitelist=['value'])  # "value < 3 ? 'green' : 'red'"
 ```
 
+You can provide a variable whitelist as a list of strings, each string being an available variable. You can also allow member access using the `Variable` class from py2vega:
+
+```Python
+from py2vega import py2vega, Variable
+
+expr1 = py2vega('3 if value > 0 else 4', whitelist=['value'])  # Returns "value > 0 ? 3 : 4"
+expr2 = py2vega('3 if my_variable > 0 else 4', whitelist=['value'])  # Raises a SyntaxError, `my_variable` is not whitelisted
+expr3 = py2vega('3 if value.member1 > value.member2 else 4', whitelist=[Variable('value', ['member1', 'member2'])])  # Returns "value.member1 > value.member2 ? 3 : 4"
+expr4 = py2vega('3 if value.member3 > 0 else 4', whitelist=[Variable('value', ['member1', 'member2'])])  # Raises a SyntaxError, `value.member3` is not whitelisted`
+```
+
+
 Because of the way [Vega-expressions](https://vega.github.io/vega/docs/expressions/) are defined, there are some rules that must follow your Python function:
 - the function body __must__ end with an `if` __or__ `return` statement and __cannot__ contain more than one `if` __or__ `return` statement
 - `if` statements __can__ be followed by `elif` statements but __must__ be followed by an `else` statement
