@@ -20,22 +20,21 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.10, 3.14]
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
-    - name: Setup conda
-      uses: conda-incubator/setup-miniconda@v2
+    - name: Install Conda environment with Micromamba
+      uses: mamba-org/setup-micromamba@v2
       with:
-        python-version: ${{ matrix.python-version }}
-        mamba-version: "*"
-        auto-activate-base: false
-        channels: conda-forge
-
-    - name: Install dependencies
-      run: mamba install pytest pytest-cov flake8
+        environment-name: py2vega
+        create-args: >-
+          python=${{ matrix.python-version }}
+          pytest
+          pytest-cov
+          flake8
 
     - name: Install py2vega
       run: pip install -e .

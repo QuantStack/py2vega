@@ -14,9 +14,9 @@ setup(
     license='BSD 3-Clause',
     keywords='python vega vega-expression',
     packages=find_packages(exclude=['test']),
-    python_requires='>=3.6',
+    python_requires='>=3.10',
     install_requires=[
-        'gast>=0.4.0,<0.5'
+        'gast>=0.7.0,<0.8'
     ],
     extras_require={
         'testing': ['pytest', 'flake8'],
@@ -26,10 +26,11 @@ setup(
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
